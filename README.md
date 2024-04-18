@@ -10,3 +10,12 @@ To access the autograder:
 * Module 3: https://classroom.github.com/a/U5CMJec1
 * Module 4: https://classroom.github.com/a/04QA6HZK
 * Quizzes: https://classroom.github.com/a/bGcGc12k
+
+## Results
+### Module 0 - Simple Classifier
+<img src='module_0.png'/>
+
+With parameters:
+- linear.weight_0_0 = -1.51
+- linear.weight_1_0 = -0.26
+- linear.bias_0 = 0.77
