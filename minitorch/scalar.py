@@ -129,6 +129,10 @@ class Scalar:
 
     def relu(self) -> Scalar:
         return ReLU.apply(self)
+    
+    # Used for topological sorting
+    def __hash__(self) -> int:
+        return hash(self.unique_id)
 
     # Variable elements for backprop
 
@@ -163,7 +167,7 @@ class Scalar:
         assert h.last_fn is not None
         assert h.ctx is not None
 
-        return list(zip(h.inputs, h.last_fn.backward(h.ctx, d_output)))
+        return list(zip(h.inputs, h.last_fn._backward(h.ctx, d_output)))
 
     def backward(self, d_output: Optional[float] = None) -> None:
         """
