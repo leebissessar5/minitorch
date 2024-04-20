@@ -150,7 +150,7 @@ def test_view() -> None:
 
 @given(tensors())
 def test_back_view(t1: Tensor) -> None:
-    "Test the graident of view"
+    "Test the gradient of view"
 
     def view(a: Tensor) -> Tensor:
         a = a.contiguous()

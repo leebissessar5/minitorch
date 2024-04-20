@@ -82,23 +82,13 @@ def broadcast_index(
 
     Returns:
         None
-
-    Raises:
-        IndexingError : if cannot broadcast
     """
-    if len(big_index) != len(big_shape): raise IndexingError("Dimensions don't match")
-    if len(shape) > len(big_shape): raise IndexingError("Shape cannot be larger than big_shape")
-    if len(shape) < len(big_shape):
-        for i in range(len(shape), len(big_shape)):
-            if big_shape[i] != 1:
-                raise IndexingError("Cannot broadcast")
-    for i in range(len(shape)):
-        if shape[i] != big_shape[i]:
-            if big_shape[i] != 1:
-                raise IndexingError("Cannot broadcast")
-            out_index[i] = 0
-        else:
-            out_index[i] = big_index[i]
+    lb = len(big_shape)
+    l = len(shape)
+    for i in range(l):
+        ib = i + lb - l
+        index = big_index[ib] if shape[i] != 1 else 0
+        out_index[i] = index
 
 
 def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
