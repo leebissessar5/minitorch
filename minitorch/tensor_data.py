@@ -204,6 +204,12 @@ class TensorData:
         if isinstance(index, tuple):
             aindex = array(index)
 
+        if len(self.shape) == 0:
+            if aindex != 0:
+                raise IndexError("You can only index the 0th position of a scalar.")
+            else:
+                return 0
+
         # Pretend 0-dim shape is 1-dim shape of singleton
         shape = self.shape
         if len(shape) == 0 and len(aindex) != 0:

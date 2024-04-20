@@ -56,7 +56,7 @@ def render_math_sandbox(use_scalar=False, use_tensor=False):
                 scatter = go.Scatter(mode="lines", x=xs, y=[x.grad[0] for x in x_var])
             else:
                 scatter = go.Scatter(
-                    mode="lines", x=xs, y=[x.derivative for x in x_var]
+                    mode="lines", x=xs, y=[x.grad for x in x_var]
                 )
             fig = go.Figure(scatter)
             st.write(fig)
@@ -103,16 +103,16 @@ def render_math_sandbox(use_scalar=False, use_tensor=False):
                         y1 = minitorch.tensor([y])
                         out = scalar(x1, y1)
                         out.backward(minitorch.tensor([1]))
-                        oa.append((x, y, x1.derivative[0]))
-                        ob.append((x, y, y1.derivative[0]))
+                        oa.append((x, y, x1.grad[0]))
+                        ob.append((x, y, y1.grad[0]))
                 else:
                     for y in ys:
                         x1 = minitorch.Scalar(x)
                         y1 = minitorch.Scalar(y)
                         out = scalar(x1, y1)
                         out.backward()
-                        oa.append((x, y, x1.derivative))
-                        ob.append((x, y, y1.derivative))
+                        oa.append((x, y, x1.grad))
+                        ob.append((x, y, y1.grad))
                 a.append(oa)
                 b.append(ob)
             st.write("Derivative f'_x(x, y)")
