@@ -82,9 +82,23 @@ def broadcast_index(
 
     Returns:
         None
+
+    Raises:
+        IndexingError : if cannot broadcast
     """
-    # TODO: Implement for Task 2.2.
-    raise NotImplementedError('Need to implement for Task 2.2')
+    if len(big_index) != len(big_shape): raise IndexingError("Dimensions don't match")
+    if len(shape) > len(big_shape): raise IndexingError("Shape cannot be larger than big_shape")
+    if len(shape) < len(big_shape):
+        for i in range(len(shape), len(big_shape)):
+            if big_shape[i] != 1:
+                raise IndexingError("Cannot broadcast")
+    for i in range(len(shape)):
+        if shape[i] != big_shape[i]:
+            if big_shape[i] != 1:
+                raise IndexingError("Cannot broadcast")
+            out_index[i] = 0
+        else:
+            out_index[i] = big_index[i]
 
 
 def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
@@ -101,8 +115,32 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
     Raises:
         IndexingError : if cannot broadcast
     """
-    # TODO: Implement for Task 2.2.
-    raise NotImplementedError('Need to implement for Task 2.2')
+    # Ensure that the resulting shape does not exceed the allowed number of dimensions
+    if len(shape1) > MAX_DIMS or len(shape2) > MAX_DIMS:
+        raise IndexingError("Shape exceeds maximum dimensions allowed")
+
+    max_dims = min(MAX_DIMS, max(len(shape1), len(shape2)))
+    new_shape = tuple()
+
+    for dim in range(1, max_dims+1):
+
+        # Check if OOB in either shape
+        sz1 = shape1[-dim] if len(shape1) >= dim else 1
+        sz2 = shape2[-dim] if len(shape2) >= dim else 1
+
+        # Validate broadcasting rules: both dimensions should either be the same or one of them should be 1
+        if sz1 != 1 and sz2 != 1 and sz1 != sz2:
+            raise IndexingError(f"Cannot broadcast dimensions: {sz1} and {sz2}")
+        
+        # Determine the new dimension size and prepend it to the new shape
+        new_shape = (max(sz1, sz2), *new_shape)
+
+    # Ensure the new shape has at most MAX_DIMS dimensions
+    if len(new_shape) > MAX_DIMS:
+        raise IndexingError("Resulting shape exceeds maximum dimensions allowed")
+
+    return new_shape
+            
 
 
 def strides_from_shape(shape: UserShape) -> UserStrides:
