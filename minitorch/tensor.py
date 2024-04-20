@@ -96,6 +96,10 @@ class Tensor:
 
         self.f = backend
 
+    # Used for topological sorting
+    def __hash__(self) -> int:
+        return hash(self.unique_id)
+
     def requires_grad_(self, x: bool) -> None:
         self.history = History()
 
