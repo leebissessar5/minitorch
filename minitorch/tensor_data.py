@@ -42,8 +42,10 @@ def index_to_position(index: Index, strides: Strides) -> int:
     Returns:
         Position in storage
     """
-    if len(index) != len(strides): raise IndexingError("Dimensions don't match")
-    return sum(i * s for i, s in zip(index, strides))
+    pos: int = 0
+    for ind, stride in zip(index, strides):
+        pos += ind * stride
+    return pos
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
@@ -59,7 +61,8 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
         out_index : return index corresponding to position.
 
     """
-    for dim in reversed(range(len(shape))):
+    ordinal = ordinal + 0
+    for dim in range(len(shape)-1, -1, -1):
         out_index[dim] = ordinal % shape[dim]
         ordinal = ordinal // shape[dim]
 

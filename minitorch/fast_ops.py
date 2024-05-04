@@ -159,8 +159,15 @@ def tensor_map(
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 3.1.
-        raise NotImplementedError('Need to implement for Task 3.1')
+        for out_idx in prange(len(out)):
+            out_midx = np.zeros(MAX_DIMS, np.int32)
+            in_midx = np.zeros(MAX_DIMS, np.int32)
+            # convert multidimensional index for the output
+            to_index(out_idx, out_shape, out_midx)
+            broadcast_index(out_midx, out_shape, in_shape, in_midx)
+
+            in_idx = index_to_position(in_midx, in_strides)
+            out[index_to_position(out_midx, out_strides)] = fn(in_storage[in_idx])
 
     return njit(parallel=True)(_map)  # type: ignore
 
@@ -198,8 +205,17 @@ def tensor_zip(
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 3.1.
-        raise NotImplementedError('Need to implement for Task 3.1')
+        for out_idx in prange(len(out)):
+            out_midx = np.zeros(MAX_DIMS, np.int32)
+            a_midx = np.zeros(MAX_DIMS, np.int32)
+            b_midx = np.zeros(MAX_DIMS, np.int32)
+            to_index(out_idx, out_shape, out_midx)
+            broadcast_index(out_midx, out_shape, a_shape, a_midx)
+            broadcast_index(out_midx, out_shape, b_shape, b_midx)
+
+            a_idx = index_to_position(a_midx, a_strides)
+            b_idx = index_to_position(b_midx, b_strides)
+            out[index_to_position(out_midx, out_strides)] = fn(a_storage[a_idx], b_storage[b_idx])
 
     return njit(parallel=True)(_zip)  # type: ignore
 
@@ -232,8 +248,28 @@ def tensor_reduce(
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        # TODO: Implement for Task 3.1.
-        raise NotImplementedError('Need to implement for Task 3.1')
+        out_size: int = len(out)
+        reduce_size: int = a_shape[reduce_dim]
+        # Main loop in parallel
+        for i in prange(out_size):
+            # All indices use numpy buffers
+            # out_index: Index = np.zeros_like(out_shape, dtype=np.int32)
+            out_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
+            # The index of out[i]
+            to_index(i, out_shape, out_index)
+            # The starting position in a to be reduced
+            a_ordinal = index_to_position(out_index, a_strides)
+            # Initialize the reduced value of a[i]
+            reduced_val = out[i]
+            # Inner-loop should not call any functions or write non-local variables
+            for j in range(reduce_size):
+                # Calculate the reduced value of a[i]
+                reduced_val = fn(
+                    reduced_val,
+                    a_storage[a_ordinal + j * a_strides[reduce_dim]],
+                )
+            # Put the reduced data into out
+            out[i] = reduced_val
 
     return njit(parallel=True)(_reduce)  # type: ignore
 
