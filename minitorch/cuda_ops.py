@@ -153,8 +153,15 @@ def tensor_map(
         out_index = cuda.local.array(MAX_DIMS, numba.int32)
         in_index = cuda.local.array(MAX_DIMS, numba.int32)
         i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
-        # TODO: Implement for Task 3.3.
-        raise NotImplementedError('Need to implement for Task 3.3')
+        
+        if i < out_size:
+            to_index(i, out_shape, out_index)
+            broadcast_index(out_index, out_shape, in_shape, in_index)
+
+            in_ord = index_to_position(in_index, in_strides)
+            out_ord = index_to_position(out_index, out_strides)
+
+            out[out_ord] = fn(in_storage[in_ord])
 
     return cuda.jit()(_map)  # type: ignore
 
@@ -195,8 +202,16 @@ def tensor_zip(
         b_index = cuda.local.array(MAX_DIMS, numba.int32)
         i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
 
-        # TODO: Implement for Task 3.3.
-        raise NotImplementedError('Need to implement for Task 3.3')
+        if i < out_size:
+            to_index(i, out_shape, out_index)
+            broadcast_index(out_index, out_shape, a_shape, a_index)
+            broadcast_index(out_index, out_shape, b_shape, b_index)
+
+            a_ord = index_to_position(a_index, a_strides)
+            b_ord = index_to_position(b_index, b_strides)
+            out_ord = index_to_position(out_index, out_strides)
+
+            out[out_ord] = fn(a_storage[a_ord], b_storage[b_ord])
 
     return cuda.jit()(_zip)  # type: ignore
 
